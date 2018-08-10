@@ -128,10 +128,10 @@ ylabel('Voltage (V)');
 legend('True value','Measurements','Kalman Filter');
 hold off;
 
-%{
+% Graph of Error Covariance 
 figure
 plot(iteration, Pk_buffer,'b', 'Linewidth', 1.5);
 title('Graph of Error Covariance (P_k)');
 xlabel('Iteration');
 ylabel('Voltage^2');
-%}
+
