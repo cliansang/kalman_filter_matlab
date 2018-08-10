@@ -26,10 +26,10 @@ close all; clear; clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Nsamples = 50;
-Vtrue = -0.37727;       % true value
-sigma_meas = 0.1;       % measurement sigma value (error variation)
+Vtrue = -0.37727;           % true value
+sigma_meas = 0.1;           % measurement sigma value (error variation)
 iteration = 1: 50;
-Xtrue = zeros(1, Nsamples);  % Vector of true value (for graph)
+Xtrue = zeros(1, Nsamples); % Vector of true value (for graph)
 Xtrue(:) = Vtrue;
 
 
@@ -39,7 +39,7 @@ Xk_prev = [];
 
 % Current state estimate (initial guess): it is guessed that 0.2 times error
 % of the true value in initial state
-Xk =  Vtrue * 0.2;    % this is our initial guess
+Xk =  Vtrue * 0.2;       % this is our initial guess
 
 % Matrix A represents the dynamics of the system: depending on the system.
 % Here we read voltage data from only one reading. so A = 1 (one value matrix)
@@ -47,7 +47,7 @@ A = 1;
 
 % The error matrix (or the confidence matrix): Pk states whether more weight
 % should be given to the new measurement or to the model estimated value.
-Pk = 1.0;           % Pk cannot be zero in initial guess.
+Pk = 1.0;               % Pk cannot be zero in initial guess.
 
 % Q is the process noise covariance. It represents the amount of uncertainty
 % in the model. In practice, it is really difficult to know the exact
@@ -65,21 +65,21 @@ R = 0.1 * 0.1 ;        % measurement noise (feel free to play with the value)
 
 
 % Buffers for plotting the results on the Graph
-Xk_buffer = zeros(1,Nsamples);    % Kalman's estimated data buffer
+Xk_buffer = zeros(1,Nsamples);      % Kalman's estimated data buffer
 Xk_buffer(:) = Xk;                
-Z_buffer = zeros(1,Nsamples);     % noisy measurement data buffer
-Pk_buffer = zeros(1, Nsamples);
+Z_buffer = zeros(1,Nsamples);       % noisy measurement data buffer
+Pk_buffer = zeros(1, Nsamples);     % error covariance data buffer
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Kalman Iteration %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i = 1:Nsamples
+for i = 1 : Nsamples
     
     % Z is the measurement vector. Here, the simulated noise is added to the 
     % voltage reading data. In practice, the real data should come here.
-    Z = Xtrue(i)+ sigma_meas * randn;    % simulated noise multipy by 0.1
+    Z = Xtrue(i)+ sigma_meas * randn;    % simulated noise multipy by 0.1 variation
     Z_buffer(i) = Z;
         
     
@@ -110,13 +110,14 @@ for i = 1:Nsamples
     
     Pk_buffer(i) = Pk;        % for graphical result purpose only
     
-end;
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot the resultant graph %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Graphcial comparison b/w Kalman filter and Noisy Measurement
 figure;
 plot(iteration, Xtrue,'b', 'LineWidth', 1.5);
 hold on;
@@ -131,7 +132,7 @@ hold off;
 % Graph of Error Covariance 
 figure
 plot(iteration, Pk_buffer,'b', 'Linewidth', 1.5);
-title('Graph of Error Covariance (P_k)');
+title('Error Covariance (P_k) upon Iterations');
 xlabel('Iteration');
 ylabel('Voltage^2');
 
