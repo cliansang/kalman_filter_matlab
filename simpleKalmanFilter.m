@@ -25,11 +25,11 @@ close all; clear; clc;
 %%% Initial Parameters %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Nsamples = 50;
+no_Samples = 50;            % no. of samples
 Vtrue = -0.37727;           % true value
 sigma_meas = 0.1;           % measurement sigma value (error variation)
 iteration = 1: 50;
-Xtrue = zeros(1, Nsamples); % Vector of true value (for graph)
+Xtrue = zeros(1, no_Samples); % Vector of true value (for graph)
 Xtrue(:) = Vtrue;
 
 
@@ -65,17 +65,17 @@ R = 0.1 * 0.1 ;        % measurement noise (feel free to play with the value)
 
 
 % Buffers for plotting the results on the Graph
-Xk_buffer = zeros(1,Nsamples);      % Kalman's estimated data buffer
+Xk_buffer = zeros(1, no_Samples);      % Kalman's estimated data buffer
 Xk_buffer(:) = Xk;                
-Z_buffer = zeros(1,Nsamples);       % noisy measurement data buffer
-Pk_buffer = zeros(1, Nsamples);     % error covariance data buffer
+Z_buffer = zeros(1, no_Samples);       % noisy measurement data buffer
+Pk_buffer = zeros(1, no_Samples);      % error covariance data buffer
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Kalman Iteration %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i = 1 : Nsamples
+for i = 1 : no_Samples
     
     % Z is the measurement vector. Here, the simulated noise is added to the 
     % voltage reading data. In practice, the real data should come here.
