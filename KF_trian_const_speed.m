@@ -9,11 +9,10 @@
 %                  possible poistion and velocity estimate of a train moving
 %                  along a railway line in this example. As a control input  
 %                  signal to the system, the train driver may apply brake or
-%                  acceleration as as required in this example in order
-%                  to change the dynamics of the movement. However, it is 
-%                  assume that the train is moving with a constant speed in
-%                  this particular example for simplicity. No inputs are
-%                  accounted yet.
+%                  acceleration as required in order the dynamics of the 
+%                  train movement. However, it is assume that the train is 
+%                  moving with a constant speed in this particular example
+%                  for simplicity. No system inputs are accounted yet.
 %
 %
 % Author:          Cung Lian Sang
@@ -97,8 +96,8 @@ Pk_buffer = zeros(2, no_Samples);      % error covariance data buffer
 for i = 1 : no_Samples
     
     % Z is the measurement vector. Here, the simulated noise is added to the 
-    % voltage reading data. In practice, the real data should come here.
-    Z = Xtrue(:, i) + 10 .* randn;    % simulated noise multipy by 0.1 variation
+    % the real position and velocity data. In practice, the real data should come here.
+    Z = Xtrue(:, i) + 10 .* randn;    % simulated noise multipy by xx times
     Z_buffer(:, i) = Z;
         
     
