@@ -28,7 +28,7 @@ close all; clear; clc;
 no_Samples = 50;            % no. of samples
 Vtrue = -0.37727;           % true value
 sigma_meas = 0.1;           % measurement sigma value (error variation)
-iteration = 1: 50;
+iteration = 1: no_Samples;
 Xtrue = zeros(1, no_Samples); % Vector of true value (for graph)
 Xtrue(:) = Vtrue;
 
@@ -55,7 +55,8 @@ Pk_prev = [];           % P_k_minus symbol in the paper (a Priori)
 % value. Normally, it is assumed that the noise is Gaussian with zero mean.
 Q = 1 * 10^-5 ;         % process noise
 
-% H is the measurement matrix. Again only one reading. So a matix of 1.
+% % H is the measurement matrix or Observation model matrix. 
+% Again only one reading infos. So a matix of 1.
 H = 1;
 
 % R is the measurement noise covariance. It represents the amount of errror
@@ -94,7 +95,7 @@ for i = 1 : no_Samples
                                    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Measurement Update (a.k.a. Correctiion or Innovation stage) %%%%%%%
+    %%% Measurement Update (a.k.a. Correction or Innovation stage) %%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     S = H * Pk_prev * H' + R;   % prepare for the inverse
     
@@ -119,10 +120,11 @@ end
 
 % Graphcial comparison b/w Kalman filter and Noisy Measurement
 figure;
-plot(iteration, Xtrue,'b', 'LineWidth', 1.5);
+subplot(2,1,1)
+plot(iteration, Xtrue, 'b', 'LineWidth', 1.5);
 hold on;
 scatter(iteration, Z_buffer, '+', 'k', 'LineWidth', 1.5);
-plot(iteration, Xk_buffer(1,:),'m--*', 'LineWidth', 1);
+plot(iteration, Xk_buffer, 'm--*', 'LineWidth', 1);
 title('Kalman Filter Simulation for Votage Reading example');
 xlabel('Iteration');
 ylabel('Voltage (V)');
@@ -130,7 +132,7 @@ legend('True value','Measurements','Kalman Filter');
 hold off;
 
 % Graph of Error Covariance 
-figure
+subplot(2, 1, 2)
 plot(iteration, Pk_buffer,'b', 'Linewidth', 1.5);
 title('Error Covariance (P_k) upon Iterations');
 xlabel('Iteration');
