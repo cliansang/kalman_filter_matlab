@@ -34,12 +34,12 @@ Xtrue(:) = Vtrue;
 
 
 
-% Previous state estimated value
-Xk_prev = [];
+% Previous state estimated value (a priori)
+Xk_prev = [];           % \cap{x_k}_minus symbol in documentation (priori)
 
-% Current state estimate (initial guess): it is guessed that 0.2 times error
-% of the true value in initial state
-Xk =  Vtrue * 0.2;       % this is our initial guess
+% Current state (a posteriori) estimate value (initial guess): 
+% it is guessed that 0.2 times error of the true value in initial state
+Xk =  Vtrue * 0.2;       % this is our initial guess (a posteriori)
 
 % Matrix A represents the dynamics of the system: depending on the system.
 % Here we read voltage data from only one reading. so A = 1 (one value matrix)
@@ -47,7 +47,8 @@ A = 1;
 
 % The error matrix (or the confidence matrix): Pk states whether more weight
 % should be given to the new measurement or to the model estimated value.
-Pk = 1.0;               % Pk cannot be zero in initial guess.
+Pk = 1.0;               % Pk cannot be zero in initial guess (a posteriori)
+Pk_prev = [];           % P_k_minus symbol in the paper (a Priori)
 
 % Q is the process noise covariance. It represents the amount of uncertainty
 % in the model. In practice, it is really difficult to know the exact
@@ -55,7 +56,6 @@ Pk = 1.0;               % Pk cannot be zero in initial guess.
 Q = 1 * 10^-5 ;         % process noise
 
 % H is the measurement matrix. Again only one reading. So a matix of 1.
-% H = [1 0];
 H = 1;
 
 % R is the measurement noise covariance. It represents the amount of errror
@@ -83,19 +83,19 @@ for i = 1 : no_Samples
     Z_buffer(i) = Z;
         
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Time Update (a.k.a. Predict stage)%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Time Update (a.k.a. Prediction stage)%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     % 1. Project the state ahead
-    Xk_prev = A * Xk ;          % There is no control signal. So, uk = 0;
+    Xk_prev = A * Xk ;          % There is no control signal input. So, uk = 0;
     
     % 2. Project the error covariance ahead
     Pk_prev = A * Pk * A' + Q;  % Initial value for Pk shoud be guessed.                   
                                    
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Measurement Update (a.k.a. Correct or Innovation stage) %%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Measurement Update (a.k.a. Correctiion or Innovation stage) %%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     S = H * Pk_prev * H' + R;   % prepare for the inverse
     
     % 1. compute the Kalman gain
