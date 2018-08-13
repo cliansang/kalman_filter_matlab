@@ -1,5 +1,5 @@
 %--------------------------------------------------------------------------
-% Name:            simpleKalmanFilter.m
+% Name:            KF_train_const_speed.m
 %
 % Description:     A simple example of one-dimentioal tracking problem
 %                  using Kalman filter is demonstrated. The example is based
@@ -32,7 +32,6 @@ close all; clear; clc;
 
 no_Samples = 100;        % no. of samples
 true_vel = 12;          % true const velocity in m/s
-iteration = 1: no_Samples;
 delta_t = 0.1;          % update rate of the tracking (every half seconds)
 time_rate = delta_t: delta_t: delta_t * no_Samples; % length = no. of samples
 
@@ -40,10 +39,9 @@ Xtrue = zeros(2, no_Samples); % Vector of true value (for graph)
 init_pos = 10;                   % initial position
 
 % System of equation for position and velocity. here force is assumed as
-% 0.5 (f_t/m = 0.5)
+% 0.2 (f_t/m = 0.2)
 Xtrue(1,:) = init_pos + true_vel .* time_rate + 0.2 .* time_rate.^2 ./2;  % true train position
-% Xtrue(2,:) = true_vel + 0.5 .* time_rate; % initial velocity never change again
-Xtrue(2,:) = true_vel;
+Xtrue(2,:) = true_vel;   % constant velocity 
 
 
 % Previous state (a priori) estimated value 
