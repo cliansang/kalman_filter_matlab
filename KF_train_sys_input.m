@@ -1,19 +1,23 @@
 %--------------------------------------------------------------------------
-% Name:            KF_train_const_speed.m
+% Name:            KF_train_sys_input.m
 %
 % Description:     A simple example of one-dimentional tracking problem
-%                  using Kalman filter is demonstrated in the example. The 
-%                  example is based on the description of the lecture note,
-%                  which is available to download at the following link:
+%                  using Kalman filter is demonstrated. The example is based
+%                  on the lecture note, which is available to download at
 %                  https://courses.engr.illinois.edu/ece420/fa2017/UnderstandingKalmanFilter.pdf
 %                  In particular, we are trying to estimate/track the best
-%                  possible poistion and velocity of a train moving
+%                  possible poistion and velocity estimate of a train moving
 %                  along a railway line in this example. As a control input  
 %                  signal to the system, the train driver may apply brake or
-%                  acceleration as required in order to change the dynamics of the 
-%                  train movement. However, it is assume that the train is 
-%                  moving with a constant speed in this particular example
-%                  for simplicity. No system inputs are accounted yet.
+%                  acceleration as required in order to change the dynamics 
+%                  of the train movement. The control signal are applied in
+%                  the transition matrix (A). Noted that, KF will always 
+%                  linearize the evaluated system even if the system in
+%                  reality is non-linear. This effect can be found in the
+%                  system input resultant graph in this example. A better
+%                  result cound be achieved in non-linear system model by
+%                  using Extended Kalman Fiter(EKF) or Unscented Kalman
+%                  Filter (UKF) approaches.                  
 %
 %
 % Author:          Cung Lian Sang
@@ -30,18 +34,19 @@ close all; clear; clc;
 %%% Initial Parameters & System Design %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-no_Samples = 100;        % no. of samples
-init_vel = 12;          % initial constant velocity in m/s
+no_Samples = 100;       % no. of samples
+init_vel = 12;          % initial velocity in m/s (const)
 delta_t = 0.1;          % update rate of the tracking (every half seconds)
 time_rate = delta_t: delta_t: delta_t * no_Samples; % length = no. of samples
 
-Xtrue = zeros(2, no_Samples);    % Vector of true value (for graph)
+Xtrue = zeros(3, no_Samples);    % Vector of true value (for graph)
 init_pos = 10;                   % initial position
 
 % System of equation for position and velocity. here force is assumed as
 % 0.2 (f_t/m = 0.2)
-Xtrue(1,:) = init_pos + init_vel .* time_rate + 0.2 .* time_rate.^2 ./2;  % true train position
-Xtrue(2,:) = init_vel;   % constant velocity 
+Xtrue(1,:) = init_pos + init_vel .* time_rate + 0.2 .* time_rate.^2./2;  % true train position
+Xtrue(2,:) = init_vel + 0.2 .* time_rate;   % velocity variation
+Xtrue(3,:) = 2 .* randn(1, no_Samples) ;    % random system input 
 
 
 % Previous state (a priori) estimated value 
@@ -49,45 +54,53 @@ Xk_prev = [];           % \cap{x_k}_minus symbol (a priori)
 
 % Current state (a posteriori) estimated value (initial guess): 
 Xk = [10;               % this is our initial guess (a posteriori)
-     0.8 * init_vel];
+     0.8 * init_vel;
+     1];
 
 % State Transition Matrix A represents the dynamics of the system: 
 % see the system of equations and the detialed infos in the mentioned paper
-% where the link is provided in the description above.
-A = [1  delta_t; 
-    0   1];
+% which the link is provided in the description above.
+A = [1  delta_t  delta_t.^2./2;   % Here already included the input signal.
+    0   1        delta_t;         % Therefore, B*uk is alread applied.
+    0   0        1];
 
-% Matix B represents the control signal input in the system. 
+% Matix B represents the control signal input in the system.
+% In this example, this value has already been applied in the
+% transition matix A. Therefore, this can safely be ignored.
 B = [(delta_t * delta_t)./2;    % see the details in the mentioned paper
     delta_t];
 
 % The error matrix (or the confidence matrix): Pk states whether more weight
 % should be given to the new measurement or to the model estimated value.
-Pk = [1.5  0;
-      0    1];          % Pk cannot be zero in initial guess (a posteriori)
+Pk = [1  0  0;
+      0  2  0;
+      0  0  1];         % Pk cannot be zero in initial guess (a posteriori)
 Pk_prev = [];           % P_k_minus symbol in the paper (a Priori)
 
 % Q is the process noise covariance. It represents the amount of uncertainty
 % in the model. In practice, it is really difficult to know the exact
 % value. Normally, it is assumed that the noise is Gaussian with zero mean.
-Q = [0.00001  0;    % Here assume there is very small system model error 
-     0        0.00001];
+Q = [0.00001 0       0; % Here, we assume that there is small system model error 
+     0       0.00001 0; 
+     0       0       0.00001];
 
 % H is the measurement matrix or Observation model matrix.  see the details
 % in the paper provided in the description. 
-H = [1  0;
-     0  1];
+H = [1  0  0;
+     0  1  0;
+     0  0  1];
 
 % R is the measurement noise covariance. It represents the amount of errror
 % in our measurement. In practice, this value can be found statistically.     
-R = [0.5  0;        % measurement noise (feel free to play with the value)
-     0    2];
+R = [0.5  0    0;        % measurement noise (feel free to play with the value)
+     0    1.0  0;
+     0    0    1.5];
 
 
 % Buffers for plotting the results on the Graph
-Xk_buffer = zeros(2, no_Samples);      % Kalman's estimated data buffer             
-Z_buffer = zeros(2, no_Samples);       % noisy measurement data buffer
-Pk_buffer = zeros(2, no_Samples);      % error covariance data buffer
+Xk_buffer = zeros(3, no_Samples);      % Kalman's estimated data buffer             
+Z_buffer = zeros(3, no_Samples);       % noisy measurement data buffer
+Pk_buffer = zeros(3, no_Samples);      % error covariance data buffer
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,7 +119,7 @@ for i = 1 : no_Samples
     %%% Time Update (a.k.a. Prediction stage)%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     % 1. Project the state ahead
-    Xk_prev = A * Xk ;          
+    Xk_prev = A * Xk ;     % const input signal u_k = 1 is appplied       
     
     % 2. Project the error covariance ahead
     Pk_prev = A * Pk * A' + Q;  % Initial value for Pk shoud be guessed.                   
@@ -127,7 +140,7 @@ for i = 1 : no_Samples
     % 3. Update the error Covariance
     Pk = Pk_prev - K * H * Pk_prev;   % Pk = (I - K*H)Pk_prev
     
-%     Pk_buffer(1, i) = Pk;           % for graphical result purpose only
+%     Pk_buffer(1, i) = Pk;             % for graphical result purpose only
     
 end
 
@@ -159,6 +172,19 @@ plot(time_rate, Xk_buffer(2,:), 'm--*', 'LineWidth', 1);
 title('Velocity of one-dimentional train tracking example');
 xlabel('Time in seconds');
 ylabel('Velocity of the Train (m/s)');
+legend('True value','Measurements','Kalman Filter');
+hold off;
+
+
+figure
+% subplot(2,1,2)
+plot(time_rate, Xtrue(3,:), 'b', 'LineWidth', 1.5);
+hold on;
+scatter(time_rate, Z_buffer(3,:), '+', 'k', 'LineWidth', 1.5);
+plot(time_rate, Xk_buffer(3,:), 'm--*', 'LineWidth', 1);
+title('System input signal variation in tracking trian example');
+xlabel('Time in seconds');
+ylabel('Value of System Input Signal');
 legend('True value','Measurements','Kalman Filter');
 hold off;
 

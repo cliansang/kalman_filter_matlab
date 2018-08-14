@@ -21,9 +21,9 @@
 
 close all; clear; clc;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Initial Parameters %%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Initial Parameters & System Design %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 no_Samples = 50;            % no. of samples
 Vtrue = -0.37727;           % true value
@@ -41,7 +41,7 @@ Xk_prev = [];           % \cap{x_k}_minus symbol in documentation (priori)
 % it is guessed that 0.2 times error of the true value in initial state
 Xk =  Vtrue * 0.2;       % this is our initial guess (a posteriori)
 
-% Matrix A represents the dynamics of the system: depending on the system.
+% State transtion Matrix A represents the dynamics of the system.
 % Here we read voltage data from only one reading. so A = 1 (one value matrix)
 A = 1;
 
@@ -53,7 +53,7 @@ Pk_prev = [];           % P_k_minus symbol in the paper (a Priori)
 % Q is the process noise covariance. It represents the amount of uncertainty
 % in the model. In practice, it is really difficult to know the exact
 % value. Normally, it is assumed that the noise is Gaussian with zero mean.
-Q = 1 * 10^-5 ;         % process noise
+Q = 1 * 10^-5 ;         % process noise (system model error)
 
 % % H is the measurement matrix or Observation model matrix. 
 % Again only one reading infos. So a matix of 1.
@@ -66,8 +66,7 @@ R = 0.1 * 0.1 ;        % measurement noise (feel free to play with the value)
 
 
 % Buffers for plotting the results on the Graph
-Xk_buffer = zeros(1, no_Samples);      % Kalman's estimated data buffer
-Xk_buffer(:) = Xk;                
+Xk_buffer = zeros(1, no_Samples);      % Kalman's estimated data buffer              
 Z_buffer = zeros(1, no_Samples);       % noisy measurement data buffer
 Pk_buffer = zeros(1, no_Samples);      % error covariance data buffer
 
