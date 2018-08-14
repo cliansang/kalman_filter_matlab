@@ -2,7 +2,7 @@
 Implementation of Discrete Kalman Filter in Matlab/Octave with simple examples
 
 This repository demonstrates the implementation of Kalman filter with simple examples in Matlab/Octave.
-The implementational steps are based on the paper entitled "An Introduction to the Kalman Filter" by Greg Welch and Gary Bishop.
+The implementation steps are based on the paper entitled "An Introduction to the Kalman Filter" by Greg Welch and Gary Bishop.
 The paper can be downloaded at https://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf .
 
 
