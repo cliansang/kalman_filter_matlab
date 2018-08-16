@@ -128,10 +128,10 @@ for i = 1 : no_Samples
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Measurement Update (a.k.a. Correction or Innovation stage) %%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    S = H * Pk_prev * H' + R;   % prepare for the inverse
+    S = H * Pk_prev * H' + R;   % prepare for the inverse Matrix
     
     % 1. compute the Kalman gain
-    K = Pk_prev * H' * inv(S); 
+    K = (Pk_prev * H')/S;       % K = Pk_prev * H' * inv(S);
     
     % 2. update the estimate with measurement Zk
     Xk = Xk_prev + K * (Z - H * Xk_prev);

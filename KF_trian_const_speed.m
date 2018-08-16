@@ -70,8 +70,10 @@ Pk_prev = [];           % P_k_minus symbol in the paper (a Priori)
 % Q is the process noise covariance. It represents the amount of uncertainty
 % in the model. In practice, it is really difficult to know the exact
 % value. Normally, it is assumed that the noise is Gaussian with zero mean.
-Q = [0.00001  0;    % Here assume there is very small system model error 
-     0        0.00001];
+% The covariance of Q can be approximated as follows according to the example 
+% described in wikipedia availabe at https://en.wikipedia.org/wiki/Kalman_filter
+Q = [(delta_t.^4)./4  (delta_t.^3)./2 ;     
+     (delta_t.^3)./2   (delta_t.^2)];
 
 % H is the measurement matrix or Observation model matrix.  see the details
 % in the paper provided in the description. 
@@ -81,7 +83,7 @@ H = [1  0;
 % R is the measurement noise covariance. It represents the amount of errror
 % in our measurement. In practice, this value can be found statistically.     
 R = [0.5  0;        % measurement noise (feel free to play with the value)
-     0    2];
+     0    0.5];
 
 
 % Buffers for plotting the results on the Graph
@@ -115,10 +117,10 @@ for i = 1 : no_Samples
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Measurement Update (a.k.a. Correction or Innovation stage) %%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    S = H * Pk_prev * H' + R;   % prepare for the inverse
+    S = H * Pk_prev * H' + R;   % prepare for the inverse Matrix
     
     % 1. compute the Kalman gain
-    K = Pk_prev * H' * inv(S); 
+    K = (Pk_prev * H')/S;       % K = Pk_prev * H' * inv(S); 
     
     % 2. update the estimate with measurement Zk
     Xk = Xk_prev + K * (Z - H * Xk_prev);
