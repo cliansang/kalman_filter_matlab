@@ -113,6 +113,13 @@ for i = 1 : no_Samples
 end
 
 
+% Moving Average Filter for comparing the results
+windowSize = 5;
+b = (1/windowSize)*ones(1,windowSize);
+a = 1;
+movingAverage = filter(b, a, Z_buffer);
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot the resultant graph %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,10 +131,11 @@ plot(iteration, Xtrue, 'b', 'LineWidth', 1.5);
 hold on;
 scatter(iteration, Z_buffer, '+', 'k', 'LineWidth', 1.5);
 plot(iteration, Xk_buffer, 'm--*', 'LineWidth', 1);
+plot(iteration, movingAverage, 'r--d', 'LineWidth', 1);
 title('Kalman Filter Simulation for Votage Reading example');
 xlabel('Iteration');
 ylabel('Voltage (V)');
-legend('True value','Measurements','Kalman Filter');
+legend('True value','Measurements','Kalman Filter', 'Moving Average');
 hold off;
 
 % Graph of Error Covariance 
